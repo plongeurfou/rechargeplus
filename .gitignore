@@ -1,0 +1,6 @@
+rechargeplus/inc/local.php
+rechargeplus/inc/config.php
+rechargeplus/inc/code_installation.txt
+*.key
+dist/
+.DS_Store

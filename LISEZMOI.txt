@@ -1,0 +1,33 @@
+RECHARGEPLUS — V1.0
+====================
+
+RechargePlus est la suite de « Recharge » (version 2.x), qui reste disponible séparément.
+
+NOUVEAUTÉS PAR RAPPORT À RECHARGE
+- Mobile : accès par code PIN (4 à 6 chiffres) et/ou empreinte (WebAuthn, HTTPS requis), sans mot de passe.
+- Appareils enrôlés par QR code (usage unique, 5 minutes) depuis Administration > Appareils ; blocage après échecs de PIN, déblocage et révocation depuis le PC.
+- Verrouillage après inactivité ou mise en arrière-plan ; PIN vérifiable hors ligne.
+- Modes identifiant unique / utilisateurs distincts (recharges attribuées).
+- Journal des échecs d'authentification.
+
+REPRENDRE VOS DONNÉES DE RECHARGE
+1. Dans Recharge, mettez à jour en version 2.7 ou plus (bouton « Export complet » dans l'administration), puis téléchargez le fichier .json.
+2. Installez RechargePlus (ci-dessous), puis Administration > Importer depuis Recharge.
+3. Enrôlez vos téléphones depuis Administration > Appareils (mot de passe et sessions ne sont pas repris).
+
+INSTALLATION NEUVE
+1. Créez une base MySQL/MariaDB et un utilisateur (panneau de l'hébergeur).
+2. Copiez le dossier rechargeplus/ par FTP.
+3. Créez par FTP le fichier rechargeplus/inc/code_installation.txt contenant un code de votre choix (8 caractères minimum).
+4. Ouvrez l'adresse du site : l'assistant vous demande le code, puis la base, le budget, les tarifs, le mot de passe.
+5. Le fichier code_installation.txt est supprimé automatiquement à la fin (sinon supprimez-le vous-même).
+6. Ouvrez la page Diagnostic pour vérifier l'installation.
+
+SÉCURITÉ
+- Le fichier inc/local.php contient le mot de passe de la base : ne le partagez jamais.
+- Les mises à jour ne s'installent jamais toutes seules : vous téléchargez et copiez vous-même.
+- Le fichier de version est signé ; sans la clé privée du mainteneur, une fausse mise à jour est rejetée.
+
+LIMITE CONNUE
+Si une migration de base échoue, l'application affiche une erreur plutôt que de tourner sur une base à moitié migrée.
+Activez temporairement « debug » dans Paramètres pour voir le message.
