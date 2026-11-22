@@ -14,4 +14,4 @@ const UPDATE_MANIFEST_URL = 'https://github.com/plongeurfou/rechargeplus/release
  * Clé publique de signature des versions (base64), affichée par outils/generer_cles.php.
  * Sans elle, aucune mise à jour n'est jamais proposée.
  */
-const UPDATE_PUBLIC_KEY = '';   // à renseigner : clé publique affichée par php outils/generer_cles.php
+const UPDATE_PUBLIC_KEY = ''qZ8aLTKc9YRf9DwqOIVoXhwKAW0JQlzvsuqlqUPZnVI=;   // à renseigner : clé publique affichée par php outils/generer_cles.php
