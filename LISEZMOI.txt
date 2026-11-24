@@ -1,4 +1,4 @@
-RECHARGEPLUS — V1.0
+RECHARGEPLUS — V1.0.1
 ====================
 
 RechargePlus est la suite de « Recharge » (version 2.x), qui reste disponible séparément.
@@ -9,6 +9,7 @@ NOUVEAUTÉS PAR RAPPORT À RECHARGE
 - Verrouillage après inactivité ou mise en arrière-plan ; PIN vérifiable hors ligne.
 - Modes identifiant unique / utilisateurs distincts (recharges attribuées).
 - Journal des échecs d'authentification.
+- 1.0.1 : biométrie lancée par un appui (iPhone) ; enrôlement possible par code à 8 chiffres en plus du QR.
 
 REPRENDRE VOS DONNÉES DE RECHARGE
 1. Dans Recharge, mettez à jour en version 2.7 ou plus (bouton « Export complet » dans l'administration), puis téléchargez le fichier .json.

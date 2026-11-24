@@ -295,14 +295,55 @@ function device_check_pin(PDO $db, array $dev, string $pin): array
 
 /* ---------- Jetons d'enrôlement (QR code) ---------- */
 
-/** Crée un jeton à usage unique ; renvoie ['token' => clair, 'expires' => timestamp]. */
+function enroll_code_hash(string $code): string
+{
+    return hash_hmac('sha256', 'enroll-code|' . $code, (string) config()['secret']);
+}
+
+/**
+ * Crée un jeton à usage unique ; renvoie ['token' => clair, 'code' => 8 chiffres, 'expires' => timestamp].
+ * Le code sert à enrôler à la main (application installée sur l'écran d'accueil, où le QR code ne peut pas s'ouvrir).
+ */
 function enroll_token_create(PDO $db, int $userId, string $deviceName): array
 {
     $token = bin2hex(random_bytes(24));
     $exp   = time() + ENROLL_TTL;
-    $db->prepare('INSERT INTO enroll_tokens (token_hash, user_id, device_name, created_at, expires_at) VALUES (?, ?, ?, ?, ?)')
-       ->execute([hash('sha256', $token), $userId, $deviceName, date('Y-m-d H:i:s'), date('Y-m-d H:i:s', $exp)]);
-    return ['token' => $token, 'expires' => $exp];
+    do {   // un code est unique parmi les jetons encore valides
+        $code = str_pad((string) random_int(0, 99999999), 8, '0', STR_PAD_LEFT);
+        $st = $db->prepare('SELECT COUNT(*) FROM enroll_tokens WHERE code_hash = ? AND used_at IS NULL AND expires_at >= ?');
+        $st->execute([enroll_code_hash($code), date('Y-m-d H:i:s')]);
+    } while ((int) $st->fetchColumn() > 0);
+    $db->prepare('INSERT INTO enroll_tokens (token_hash, code_hash, user_id, device_name, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)')
+       ->execute([hash('sha256', $token), enroll_code_hash($code), $userId, $deviceName, date('Y-m-d H:i:s'), date('Y-m-d H:i:s', $exp)]);
+    return ['token' => $token, 'code' => $code, 'expires' => $exp];
+}
+
+/** Trop d'essais de code depuis cette adresse (10 en 15 minutes) ? */
+function enroll_code_blocked(PDO $db): bool
+{
+    $st = $db->prepare("SELECT COUNT(*) FROM auth_log WHERE event = 'code_echec' AND ip = ? AND at >= ?");
+    $st->execute([client_ip(), date('Y-m-d H:i:s', time() - 900)]);
+    return (int) $st->fetchColumn() >= 10;
+}
+
+/** Jeton valide désigné par son code de 8 chiffres, ou null (l'échec est compté). */
+function enroll_token_find_by_code(PDO $db, string $code): ?array
+{
+    $code = preg_replace('/\D/', '', $code) ?? '';
+    if (enroll_code_blocked($db)) {
+        return null;
+    }
+    if (strlen($code) === 8) {
+        $st = $db->prepare('SELECT * FROM enroll_tokens WHERE code_hash = ? AND used_at IS NULL AND expires_at >= ?');
+        $st->execute([enroll_code_hash($code), date('Y-m-d H:i:s')]);
+        $r = $st->fetch();
+        if ($r) {
+            return $r;
+        }
+    }
+    auth_log($db, 'code_echec', null, 'code d\'enrôlement refusé');
+    usleep(300000);
+    return null;
 }
 
 /** Jeton valide (non utilisé, non expiré) ou null. */

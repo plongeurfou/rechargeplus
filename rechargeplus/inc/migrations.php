@@ -10,7 +10,7 @@ declare(strict_types=1);
  * Le numéro atteint est mémorisé dans le réglage « schema_version ».
  */
 
-const SCHEMA_VERSION = 5;
+const SCHEMA_VERSION = 6;
 
 function migrations(): array
 {
@@ -18,6 +18,12 @@ function migrations(): array
         // 1 : base de la V2 (tables recharges, login_attempts, settings)
         1 => function (PDO $db): void {
             create_tables($db);
+        },
+        // 6 : code d'enrôlement à saisir à la main (1.0.1)
+        6 => function (PDO $db): void {
+            if (!db_column_exists($db, 'enroll_tokens', 'code_hash')) {
+                $db->exec('ALTER TABLE enroll_tokens ADD COLUMN code_hash CHAR(64) NULL AFTER used_at, ADD KEY idx_code (code_hash)');
+            }
         },
         // 5 : authentification par appareil (V3.0) : tables + colonne user_id des recharges
         5 => function (PDO $db): void {

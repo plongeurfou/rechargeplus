@@ -74,8 +74,10 @@ function create_tables(PDO $db): void
         created_at  DATETIME     NOT NULL,
         expires_at  DATETIME     NOT NULL,
         used_at     DATETIME     NULL,
+        code_hash   CHAR(64)     NULL,
         PRIMARY KEY (id),
-        UNIQUE KEY uq_token (token_hash)
+        UNIQUE KEY uq_token (token_hash),
+        KEY idx_code (code_hash)
     ) $opts");
 
     $db->exec("CREATE TABLE IF NOT EXISTS auth_log (

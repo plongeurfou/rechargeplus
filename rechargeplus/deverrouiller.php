@@ -58,7 +58,8 @@ page_head('Déverrouiller — RechargePlus', 'narrow');
   <section class="card">
 <?php if (!$dev): ?>
     <p class="msg bad" role="alert">Cet appareil n'est pas enregistré (ou son accès a été révoqué).</p>
-    <p>Demandez à l'administrateur de créer un accès depuis le PC, puis scannez le QR code affiché.</p>
+    <p>Demandez à l'administrateur de créer un accès depuis le PC, puis scannez le QR code affiché, ou saisissez le code à 8 chiffres.</p>
+    <p class="center"><a class="btn" href="enroler.php">Saisir un code d'enrôlement</a></p>
 <?php elseif ((int) $dev['locked'] === 1): ?>
     <p class="msg bad" role="alert">Appareil bloqué après trop d'échecs de code PIN.</p>
     <p>L'administrateur doit le débloquer depuis le PC.</p>
@@ -79,5 +80,5 @@ page_head('Déverrouiller — RechargePlus', 'narrow');
   </section>
 </main>
 <?php
-lock_config(['next' => $next, 'autoBio' => $dev && $dev['bio_credential_id'] !== null && (int) $dev['locked'] === 0 && ($_GET['lock'] ?? '') !== '1' ? true : false]);
+lock_config(['next' => $next]);
 page_foot(['assets/lock.js']);

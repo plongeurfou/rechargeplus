@@ -6,11 +6,27 @@ require_configured();
 
 $db    = db();
 $token = (string) ($_GET['t'] ?? $_POST['t'] ?? '');
-$tok   = enroll_token_find($db, $token);
+$code  = preg_replace('/\D/', '', (string) ($_POST['c'] ?? $_POST['code'] ?? '')) ?? '';
 $error = null;
-
-if ($tok && $_SERVER['REQUEST_METHOD'] === 'POST') {
+$post  = $_SERVER['REQUEST_METHOD'] === 'POST';
+$askCode = $token === '' && $code === '';   // ni QR ni code : on propose de saisir le code
+if ($post) {
     check_origin();
+}
+if ($token !== '') {
+    $tok = enroll_token_find($db, $token);
+} elseif ($code !== '') {
+    $tok = enroll_token_find_by_code($db, $code);
+    if (!$tok) {
+        $error = enroll_code_blocked($db) ? 'Trop d\'essais : patientez 15 minutes.' : 'Code invalide, expiré ou déjà utilisé.';
+        $askCode = true;
+        $code = '';
+    }
+} else {
+    $tok = null;
+}
+
+if ($tok && $post && isset($_POST['pin'])) {
     $json = !empty($_POST['json']);
     $pin  = trim((string) ($_POST['pin'] ?? ''));
     if ($pin !== trim((string) ($_POST['pin2'] ?? ''))) {
@@ -50,13 +66,22 @@ page_head('Enrôler cet appareil — RechargePlus', 'narrow');
 <main class="wrap">
   <h1>Enrôler cet appareil</h1>
   <section class="card">
-<?php if (!$tok): ?>
+<?php if ($askCode && !$tok): ?>
+    <?php if ($error): ?><p class="msg bad" role="alert"><?= e($error) ?></p><?php endif; ?>
+    <p>Saisissez le code à 8 chiffres affiché par l'administrateur sur le PC (valable 5 minutes), ou scannez son QR code.</p>
+    <form method="post" action="enroler.php" autocomplete="off">
+      <label class="field"><span>Code d'enrôlement</span>
+        <input type="text" name="code" class="pin-input" inputmode="numeric" pattern="[0-9 ]*" maxlength="9" autocomplete="off" required autofocus></label>
+      <button type="submit" class="btn">Continuer</button>
+    </form>
+<?php elseif (!$tok): ?>
     <p class="msg bad" role="alert"><?= e($error ?? 'Ce QR code est invalide, expiré ou déjà utilisé.') ?></p>
     <p>Demandez à l'administrateur d'en générer un nouveau depuis le PC (valable 5 minutes).</p>
+    <p class="center"><a href="enroler.php">Saisir un code à la place</a></p>
 <?php else: ?>
     <p>Appareil : <strong><?= e((string) $tok['device_name']) ?></strong></p>
     <form method="post" action="enroler.php" id="enroll-form" autocomplete="off">
-      <input type="hidden" name="t" value="<?= e($token) ?>">
+      <?php if ($token !== ''): ?><input type="hidden" name="t" value="<?= e($token) ?>"><?php else: ?><input type="hidden" name="c" value="<?= e($code) ?>"><?php endif; ?>
       <label class="field"><span>Choisissez un code PIN (4 à 6 chiffres)</span>
         <input type="password" name="pin" id="pin" class="pin-input" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password" required autofocus></label>
       <label class="field"><span>Confirmez le code PIN</span>

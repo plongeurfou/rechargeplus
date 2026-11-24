@@ -49,7 +49,8 @@
   if (di) di.addEventListener('click', function () {
     post('bio.php', { action: 'disable', csrf: csrf() }).then(function (j) { if (j.ok) { state(false); say(bm, 'Biométrie désactivée : le code PIN reste nécessaire.', 'ok'); } else say(bm, j.error || 'Erreur.', 'bad'); });
   });
-  if (/[?&]bio=1/.test(location.search) && en && !en.hidden) { say(bm, 'Validez l\'empreinte ou le visage pour terminer.', 'ok'); setTimeout(enableBio, 400); }
+  // Safari (iOS) exige un geste de l'utilisateur : on n'ouvre jamais la biométrie tout seul.
+  if (/[?&]bio=1/.test(location.search) && en && !en.hidden) { say(bm, 'Touchez « Activer l\'empreinte / le visage » pour terminer.', 'ok'); }
 
   /* ----- changement de PIN ----- */
   var pf = document.getElementById('pin-form');

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /** Version de l'application (voir aussi inc/changelog.php). */
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.0.1';
 
 /**
  * Adresse du fichier « latest.json » publié avec chaque version sur le dépôt GitHub.
@@ -14,4 +14,4 @@ const UPDATE_MANIFEST_URL = 'https://github.com/plongeurfou/rechargeplus/release
  * Clé publique de signature des versions (base64), affichée par outils/generer_cles.php.
  * Sans elle, aucune mise à jour n'est jamais proposée.
  */
-const UPDATE_PUBLIC_KEY = 'qZ8aLTKc9YRf9DwqOIVoXhwKAW0JQlzvsuqlqUPZnVI=';   // à renseigner : clé publique affichée par php outils/generer_cles.php
+const UPDATE_PUBLIC_KEY = '';   // à renseigner : clé publique affichée par php outils/generer_cles.php

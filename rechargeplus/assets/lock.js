@@ -160,5 +160,4 @@
       if (j.ok) done(); else bioFail(j.error || 'Empreinte non reconnue.');
     }).catch(function () { bioFail('Empreinte non reconnue ou annulée.'); });
   });
-  if (bioBtn && CFG.autoBio) setTimeout(function () { bioBtn.click(); }, 300);
 })();

@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $t   = enroll_token_create($db, $uid, $name);
             $scheme = is_https() ? 'https' : 'http';
             $base   = $scheme . '://' . $_SERVER['HTTP_HOST'] . rtrim(dirname((string) $_SERVER['SCRIPT_NAME']), '/\\');
-            $qr = ['url' => $base . '/enroler.php?t=' . $t['token'], 'expires' => $t['expires'], 'name' => $name];
+            $qr = ['url' => $base . '/enroler.php?t=' . $t['token'], 'expires' => $t['expires'], 'name' => $name, 'code' => $t['code'], 'page' => $base . '/enroler.php'];
             auth_log($db, 'qr_genere', null, $name);
         }
     } elseif ($action === 'rename' && $id > 0) {
@@ -72,7 +72,7 @@ $mode    = sec_identity_mode();
 $csrf    = csrf_token();
 $labels  = ['pin_echec' => 'Échec de PIN', 'bio_echec' => 'Échec biométrique', 'appareil_bloque' => 'Appareil bloqué', 'pin_ok' => 'PIN accepté',
             'bio_ok' => 'Biométrie acceptée', 'appareil_enrole' => 'Appareil enrôlé', 'qr_genere' => 'QR généré', 'debloque' => 'Débloqué',
-            'revoque' => 'Révoqué', 'pin_change' => 'PIN modifié', 'bio_activee' => 'Biométrie activée', 'bio_desactivee' => 'Biométrie désactivée', 'import' => 'Import depuis Recharge'];
+            'revoque' => 'Révoqué', 'pin_change' => 'PIN modifié', 'bio_activee' => 'Biométrie activée', 'bio_desactivee' => 'Biométrie désactivée', 'import' => 'Import depuis Recharge', 'code_echec' => 'Code d\'enrôlement refusé'];
 
 header('Cache-Control: no-store');
 page_head('Appareils — RechargePlus', 'wide');
@@ -91,6 +91,9 @@ page_head('Appareils — RechargePlus', 'wide');
     <p>Scannez ce QR code avec le téléphone. Il est à usage unique et expire dans <strong id="qr-left">5:00</strong>.</p>
     <div class="qr-box" id="qr-box" data-url="<?= e($qr['url']) ?>" data-expires="<?= (int) $qr['expires'] ?>"></div>
     <?php if (!is_https()): ?><p class="msg bad">Attention : connexion non sécurisée (HTTP). Le cookie sécurisé et la biométrie exigent HTTPS.</p><?php endif; ?>
+    <p class="center">Pas de scan possible (application installée sur l'écran d'accueil de l'iPhone, par exemple) ?<br>
+      Ouvrez <code><?= e($qr['page']) ?></code> sur le téléphone et saisissez le code :</p>
+    <p class="center"><strong style="font-size:1.8rem;letter-spacing:.15em"><?= e(substr($qr['code'], 0, 4) . ' ' . substr($qr['code'], 4)) ?></strong></p>
     <noscript><p>Lien : <code><?= e($qr['url']) ?></code></p></noscript>
   </section>
 <?php endif; ?>
